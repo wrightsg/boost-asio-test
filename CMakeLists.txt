@@ -9,6 +9,7 @@ if(EXISTS ${CONAN_CMAKE_FILE})
 
     conan_cmake_run(
         REQUIRES boost/1.68.0@conan/stable
+        REQUIRES catch2/2.5.0@bincrafters/stable
         BASIC_SETUP
         CMAKE_TARGETS
         BUILD missing
@@ -17,11 +18,13 @@ else()
     message(FATAL "provide conan.cmake (run \"git submodule update --init\")")
 endif()
 
-add_executable(hello_world hello_world.cpp)
+foreach(example hello_world server_client)
+    add_executable(${example} ${example}.cpp)
 
-target_link_libraries(hello_world PRIVATE CONAN_PKG::boost)
+    target_link_libraries(${example} PRIVATE CONAN_PKG::boost CONAN_PKG::catch2)
 
-if(WIN32)
-    # TODO Shouldn't this be handled transitively by the Boost target?
-    target_link_libraries(hello_world PRIVATE ws2_32)
-endif()
+    if(WIN32)
+        # TODO Shouldn't this be handled transitively by the Boost target?
+        target_link_libraries(${example} PRIVATE ws2_32)
+    endif()
+endforeach()
